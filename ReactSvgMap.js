@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { svgPathMap } from "./svgMapConstants";
 
-import "./svgMap.css";
+import SvgMapModal from "./SvgMapModal";
+
+import "./styles/svgMap.css";
 
 const jsxOptions = {
   throwIfNamespace: false,
@@ -15,8 +17,12 @@ interface ReactSvgMapProps {
     symbol?: string,
     textPath?: string,
   }[];
+  width?: number;
+  height?: number;
+  viewBox?: string;
   pathColor?: string;
   pathSelectedColor?: string;
+  pathDisabledColor?: string;
   pathStrokeWidth?: number;
   textColor?: string;
   textSelectedColor?: string;
@@ -27,13 +33,19 @@ interface ReactSvgMapProps {
   translateExtraXOffset?: number;
   translateExtraYOffset?: number;
   withZoomControls?: boolean;
+  containerClassName?: string;
+  wrapperClassName?: string;
   onPathClick?: (path: any) => void;
 }
 
 function ReactSvgMap({
   svgPathData = svgPathMap,
+  width = 800.36395,
+  height = 600.29416,
+  viewBox = "0 0 650.364 550.293",
   pathColor = "#44bb92",
   pathSelectedColor = "#25e770",
+  pathDisabledColor = "gray",
   pathStrokeColor = "white",
   pathStrokeWidth = 0.2,
   textColor = "white",
@@ -45,6 +57,8 @@ function ReactSvgMap({
   translateExtraXOffset = 0,
   translateExtraYOffset = 0,
   withZoomControls = true,
+  containerClassName,
+  wrapperClassName,
   onPathClick,
 }: ReactSvgMapProps) {
   const [selectedPath, setSelectedPath] = useState(null);
@@ -108,8 +122,34 @@ function ReactSvgMap({
     handleScrollToPath(path, selectedPath?.id === path.id);
   };
 
+  const getIsPathDisabled = (path) => {
+    return !path.description;
+  };
+
+  const getPathColor = (path) => {
+    if (!path.description) {
+      return pathDisabledColor;
+    }
+    if (selectedPath?.id === path.id) {
+      return pathSelectedColor;
+    }
+    return pathColor;
+  };
+
+  const getTextColor = (path) => {
+    if (selectedPath?.id === path.id) {
+      return textSelectedColor;
+    }
+    return textColor;
+  };
+
   return (
-    <div className="map-svg-container">
+    <div className={`map-svg-container ${containerClassName}`}>
+      <SvgMapModal
+        show={selectedPath}
+        description={selectedPath?.description}
+      />
+
       {withZoomControls && isZoomedIn && (
         <button
           onClick={() => {
@@ -120,20 +160,21 @@ function ReactSvgMap({
         </button>
       )}
       <div
-        className="map-svg-wrapper"
+        className={`map-svg-wrapper ${wrapperClassName}`}
         style={{
           overflow: withHiddenMargins ? "hidden" : "visible",
         }}
+        id="map-svg-wrapper"
       >
         <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox={"0 0 700.364 550.293"}
-          width="750.36395"
-          height="550.29416"
-          preserveAspectRatio="xMidYMid meet"
-          jsx={jsxOptions}
           id="map-svg"
           className="animate-translate"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox={viewBox}
+          width={width}
+          height={height}
+          preserveAspectRatio="xMidYMid meet"
+          jsx={jsxOptions}
         >
           {svgPathData.map((item) => {
             const { d, id, title, symbol, textPath } = item;
@@ -143,23 +184,30 @@ function ReactSvgMap({
                   d={d}
                   title={title}
                   id={id}
-                  fill={selectedPath?.id === id ? pathSelectedColor : pathColor}
-                  onClick={() => handlePathClick(item)}
+                  fill={getPathColor(item)}
+                  onClick={() =>
+                    !getIsPathDisabled(item) && handlePathClick(item)
+                  }
                   style={{
                     stroke: pathStrokeColor,
                     strokeWidth: pathStrokeWidth,
+                    cursor: getIsPathDisabled(item) ? "not-allowed" : "pointer",
                   }}
                 />
                 {textPath && symbol && (
                   <text
                     key={symbol}
                     transform={textPath}
-                    onClick={() => handlePathClick(item)}
+                    onClick={() =>
+                      !getIsPathDisabled(item) && handlePathClick(item)
+                    }
                     style={{
-                      fill:
-                        selectedPath?.id === id ? textSelectedColor : textColor,
+                      fill: getTextColor(item),
                       fontSize: textFontSize,
                       fontFamily: textFontFamily,
+                      cursor: getIsPathDisabled(item)
+                        ? "not-allowed"
+                        : "pointer",
                     }}
                   >
                     {symbol}
