@@ -1,0 +1,43 @@
+
+.map-svg-container {
+    position: relative;
+  }
+  .map-svg-container button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    z-index: 9999;
+    background-color: white;
+    border-radius: 5px;
+    font-size: 50px;
+    width: 40px;
+    height: 40px;
+    box-shadow: 5px 5px 27px -1px #a6a6a6;
+  }
+  .map-svg-container .map-svg-wrapper {
+    width: -moz-fit-content;
+    width: fit-content;
+    height: -moz-fit-content;
+    height: fit-content;
+  }
+  .map-svg-container .map-svg-wrapper .animate-translate {
+    transition: transform 0.5s ease;
+  }
+  .map-svg-container .map-svg-wrapper svg path {
+    cursor: pointer;
+    transition: fill 0.5s;
+    stroke: white;
+    stroke-width: 0.1px;
+  }
+  .map-svg-container .map-svg-wrapper svg text {
+    cursor: pointer;
+    transition: fill 0.5s;
+    fill: white;
+    font-size: 12px;
+    -webkit-user-select: none; /* Safari */ /* IE 10 and IE 11 */
+    -moz-user-select: none;
+         user-select: none; /* Standard syntax */
+  }/*# sourceMappingURL=App.css.map */
